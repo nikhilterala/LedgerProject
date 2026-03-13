@@ -19,6 +19,7 @@ namespace LedgerProject.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
 
+        public DbSet<AccountBalance> AccountBalances { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Transaction>()
@@ -27,7 +28,9 @@ namespace LedgerProject.Data
 
             modelBuilder.Entity<BalanceSnapshot>()
                 .HasKey(b => b.AccountId);
-
+            modelBuilder.Entity<BalanceSnapshot>()
+                .Property(x => x.SnapshotBalance)
+                .HasPrecision(18, 2);
             modelBuilder.Entity<BalanceSnapshot>()
             .HasOne(bs => bs.Account)
             .WithOne()
@@ -42,6 +45,27 @@ namespace LedgerProject.Data
 
             modelBuilder.Entity<UserRole>()
             .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            modelBuilder.Entity<LedgerEntry>()
+            .HasOne(le => le.Account)
+            .WithMany(a => a.LedgerEntries)
+            .HasForeignKey(le => le.AccountId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AccountBalance>()
+                .HasKey(b => b.AccountId);
+            modelBuilder.Entity<AccountBalance>()
+            .Property(b => b.Balance)
+            .HasPrecision(18, 2);
+            modelBuilder.Entity<LedgerEntry>()
+            .Property(x => x.Amount)
+            .HasPrecision(18, 2);
+
+            modelBuilder.Entity<AccountBalance>()
+                .HasOne(b => b.Account)
+                .WithOne(a => a.AccountBalance)
+                .HasForeignKey<AccountBalance>(b => b.AccountId);
+
 
             modelBuilder.Entity<UserRole>()
                 .HasOne(ur => ur.User)

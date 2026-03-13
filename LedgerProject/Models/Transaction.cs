@@ -1,4 +1,6 @@
-﻿namespace LedgerProject.Models
+﻿using LedgerProject.Models.Enums;
+
+namespace LedgerProject.Models
 {
     public class Transaction
     {
@@ -10,7 +12,7 @@
         public DateTime CreatedAt { get; set; }
 
         public ICollection<LedgerEntry> LedgerEntries { get; set; }
-
+        public TransactionType TransactionType { get; set; }
         public Guid? ReversedTransactionId { get; set; }
     }
 }

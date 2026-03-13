@@ -1,4 +1,5 @@
-﻿using LedgerProject.Services;
+using LedgerProject.Models.Requests;
+using LedgerProject.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -62,10 +63,38 @@ namespace LedgerProject.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("create-user")]
-        public async Task<IActionResult> CreateUser([FromServices] UserService userService, string username, string password,List<string> roles)
+        public async Task<IActionResult> CreateUser(
+            [FromBody] CreateUserRequest request,
+            [FromServices] UserService userService)
         {
-            await userService.CreateUserAsync(username, password, roles);
-            return Ok("User created successfully.");
+            await userService.CreateUserAsync(
+                request.Username,
+                request.Password,
+                request.Roles);
+
+            return Ok("User created successfully");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers([FromServices] UserService userService)
+        {
+            return Ok(await userService.GetUsersAsync());
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("users/{username}")]
+        public async Task<IActionResult> DeleteUser(string username, [FromServices] UserService userService)
+        {
+            try
+            {
+                await userService.DeleteUserAsync(username);
+                return Ok("User deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

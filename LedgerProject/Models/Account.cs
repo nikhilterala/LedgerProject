@@ -11,7 +11,7 @@ namespace LedgerProject.Models
         public string AccountType { get; set; }
         public AccountStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
-
+        public AccountBalance AccountBalance { get; set; }
         public ICollection<LedgerEntry> LedgerEntries { get; set; }
     }
 }
