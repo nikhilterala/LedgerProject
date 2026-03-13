@@ -209,7 +209,11 @@ Run the API project:
 
 dotnet run
 
-Make sure SQL Server is running and connection strings are configured.
+The system automatically seeds the database with:
+- Required Roles: Admin, Operator, User
+- Default Admin: **admin** / **admin123**
+
+Make sure SQL Server is running and connection strings are configured in `appsettings.json`.
 
 
 Frontend

@@ -68,4 +68,48 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Database Seeding
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+    // Ensure database is created (optional if using migrations, but helpful for first run)
+    context.Database.EnsureCreated();
+
+    // 1. Seed Roles
+    var roles = new[] { "Admin", "Operator", "User" };
+    foreach (var roleName in roles)
+    {
+        if (!context.Roles.Any(r => r.RoleName == roleName))
+        {
+            context.Roles.Add(new LedgerProject.Models.Role 
+            { 
+                RoleId = Guid.NewGuid(), 
+                RoleName = roleName 
+            });
+        }
+    }
+    context.SaveChanges();
+
+    // 2. Seed Default Admin User
+    if (!context.Users.Any())
+    {
+        var adminRole = context.Roles.First(r => r.RoleName == "Admin");
+        var adminUser = new LedgerProject.Models.User
+        {
+            UserId = Guid.NewGuid(),
+            Username = "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            IsActive = true
+        };
+        context.Users.Add(adminUser);
+        context.UserRoles.Add(new LedgerProject.Models.UserRole
+        {
+            UserId = adminUser.UserId,
+            RoleId = adminRole.RoleId
+        });
+        context.SaveChanges();
+    }
+}
+
 app.Run();
